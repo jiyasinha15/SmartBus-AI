@@ -7,6 +7,7 @@ import {
   Users,
   ShieldCheck,
 } from "lucide-react";
+import { CircleUserRound } from "lucide-react";
 
 export default function MyBus() {
   return (
@@ -98,11 +99,12 @@ export default function MyBus() {
 
           <div className="flex flex-col items-center">
 
-            <img
-              src="https://i.pravatar.cc/200?img=12"
-              className="w-28 h-28 rounded-full border-4 border-cyan-500"
-              alt="Driver"
-            />
+            <div className="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-800 border-2 border-blue-500 flex items-center justify-center">
+              <CircleUserRound
+                size={28}
+                className="text-slate-700 dark:text-white"
+              />
+            </div>
 
             <h2 className="text-2xl font-bold mt-5">
 
@@ -122,7 +124,7 @@ export default function MyBus() {
 
             <div className="flex items-center gap-3">
 
-              <Phone className="text-blue-600"/>
+              <Phone className="text-blue-600" />
 
               +91 9876543210
 
@@ -130,7 +132,7 @@ export default function MyBus() {
 
             <div className="flex items-center gap-3">
 
-              <User className="text-green-600"/>
+              <User className="text-green-600" />
 
               Experience : 8 Years
 
@@ -218,7 +220,7 @@ export default function MyBus() {
 
           <div className="bg-blue-50 rounded-2xl p-6">
 
-            <MapPinned className="text-blue-600"/>
+            <MapPinned className="text-blue-600" />
 
             <h3 className="text-xl font-bold mt-4">
 
@@ -236,7 +238,7 @@ export default function MyBus() {
 
           <div className="bg-green-50 rounded-2xl p-6">
 
-            <Bus className="text-green-600"/>
+            <Bus className="text-green-600" />
 
             <h3 className="text-xl font-bold mt-4">
 
@@ -254,7 +256,7 @@ export default function MyBus() {
 
           <div className="bg-red-50 rounded-2xl p-6">
 
-            <Clock className="text-red-600"/>
+            <Clock className="text-red-600" />
 
             <h3 className="text-xl font-bold mt-4">
 

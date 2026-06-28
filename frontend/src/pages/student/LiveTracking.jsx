@@ -5,6 +5,7 @@ import {
   Popup,
   Polyline,
 } from "react-leaflet";
+import { CircleUserRound } from "lucide-react";
 
 import "leaflet/dist/leaflet.css";
 
@@ -177,11 +178,12 @@ export default function LiveTracking() {
             Driver Details
           </h2>
 
-          <img
-            src="https://i.pravatar.cc/150?img=12"
-            alt="Driver"
-            className="w-24 h-24 rounded-full mt-6"
-          />
+          <div className="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-800 border-2 border-blue-500 flex items-center justify-center">
+            <CircleUserRound
+              size={28}
+              className="text-slate-700 dark:text-white"
+            />
+          </div>
 
           <h3 className="text-xl font-semibold mt-4">
             Rahul Sharma

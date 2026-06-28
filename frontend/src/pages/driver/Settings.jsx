@@ -124,42 +124,7 @@ export default function DriverSettings() {
 
           </div>
 
-          {/* Dark Mode */}
 
-          <div className="flex justify-between items-center">
-
-            <div className="flex items-center gap-4">
-
-              <Moon className="text-purple-600"/>
-
-              <div>
-
-                <h3 className="font-semibold">
-                  Dark Mode
-                </h3>
-
-                <p className="text-gray-500 text-sm">
-                  Switch application theme.
-                </p>
-
-              </div>
-
-            </div>
-
-            <button
-              onClick={() => setDarkMode(!darkMode)}
-              className={`w-14 h-8 rounded-full transition ${
-                darkMode ? "bg-green-500" : "bg-gray-300"
-              }`}
-            >
-              <div
-                className={`w-6 h-6 bg-white rounded-full mt-1 transition ${
-                  darkMode ? "ml-7" : "ml-1"
-                }`}
-              />
-            </button>
-
-          </div>
 
         </div>
 

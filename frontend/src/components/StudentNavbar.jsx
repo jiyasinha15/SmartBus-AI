@@ -2,7 +2,7 @@ import {
   Bell,
   Search,
 } from "lucide-react";
-
+import { CircleUserRound } from "lucide-react";
 export default function StudentNavbar() {
   return (
     <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-3xl shadow-lg p-5 flex justify-between items-center">
@@ -40,10 +40,12 @@ export default function StudentNavbar() {
 
         <div className="flex items-center gap-3">
 
-          <img
-            src="https://i.pravatar.cc/100?img=12"
-            className="w-12 h-12 rounded-full"
-          />
+          <div className="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-800 border-2 border-blue-500 flex items-center justify-center">
+            <CircleUserRound
+              size={28}
+              className="text-slate-700 dark:text-white"
+            />
+          </div>
 
           <div>
 

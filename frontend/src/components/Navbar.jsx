@@ -5,6 +5,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { CircleUserRound } from "lucide-react";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -20,7 +21,7 @@ export default function Navbar() {
   return (
 
     <div className="h-20 bg-white shadow-sm flex items-center justify-between px-8">
-      
+
 
       {/* Left */}
 
@@ -72,11 +73,12 @@ export default function Navbar() {
 
         </button>
 
-        <img
-          src="https://i.pravatar.cc/150"
-          alt="Profile"
-          className="w-12 h-12 rounded-full border-2 border-blue-500"
-        />
+        <div className="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-800 border-2 border-blue-500 flex items-center justify-center">
+          <CircleUserRound
+            size={28}
+            className="text-slate-700 dark:text-white"
+          />
+        </div>
 
         <button
           onClick={() => navigate("/login")}

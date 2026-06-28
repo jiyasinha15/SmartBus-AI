@@ -164,20 +164,8 @@ export default function SettingsPage() {
 
                     </div>
 
-                    <div className="flex justify-between items-center border rounded-2xl p-5">
-
-                        <div className="flex items-center gap-3">
-
-                            <Moon className="text-purple-600" />
-
-                            <span>Dark Mode</span>
-
-                        </div>
-
-                        <input type="checkbox" />
-
-                    </div>
-
+                    
+            
                     <div className="flex justify-between items-center border rounded-2xl p-5">
 
                         <div className="flex items-center gap-3">

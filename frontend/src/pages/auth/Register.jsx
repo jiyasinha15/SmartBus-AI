@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
   FaUser,
   FaEnvelope,
@@ -9,8 +9,74 @@ import {
 } from "react-icons/fa";
 import { motion } from "framer-motion";
 
+
 export default function Register() {
+
+
+  const location = useLocation();
+
+  const defaultRole = location.state?.role || "";
+
+  const [role, setRole] = useState(defaultRole);
+
+  const navigate = useNavigate();
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [rollNo, setRollNo] = useState("");
+  const [semester, setSemester] = useState("");
+  const [licenseNo, setLicenseNo] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
   const [showPassword, setShowPassword] = useState(false);
+
+
+  const handleRegister = () => {
+    if (!name || !email || !phone || !password || !confirmPassword) {
+      alert("Please fill all fields.");
+      return;
+    }
+
+    if (role === "student" && (!rollNo || !semester)) {
+      alert("Please fill Roll Number and Semester.");
+      return;
+    }
+
+    if (role === "driver" && !licenseNo) {
+      alert("Please enter License Number.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      alert("Passwords do not match.");
+      return;
+    }
+
+    const user = {
+      name,
+      email,
+      phone,
+      rollNo,
+      semester,
+      licenseNo,
+      password,
+      role,
+    };
+
+    const users = JSON.parse(localStorage.getItem("users")) || [];
+
+    users.push(user);
+
+    localStorage.setItem("users", JSON.stringify(users));
+
+    alert("Registration Successful!");
+
+    navigate(`/login/${role}`);
+  };
+
+
 
   return (
     <div className="min-h-screen flex bg-gradient-to-br from-blue-900 via-blue-700 to-cyan-500">
@@ -59,8 +125,8 @@ export default function Register() {
             Create Account 🚍
           </h2>
 
-          <p className="text-blue-100 mt-2 mb-8">
-            Register as Student or Driver
+          <p className="text-blue-100 mt-2 mb-8 capitalize">
+            Register as {role}
           </p>
 
           {/* Name */}
@@ -71,6 +137,8 @@ export default function Register() {
             <input
               type="text"
               placeholder="Full Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               className="w-full pl-12 py-4 rounded-xl outline-none bg-white"
             />
           </div>
@@ -83,21 +151,67 @@ export default function Register() {
             <input
               type="email"
               placeholder="Email Address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full pl-12 py-4 rounded-xl outline-none bg-white"
             />
           </div>
 
-          {/* Role */}
+          {/* Phone */}
 
-          <select className="w-full py-4 px-4 rounded-xl mb-4 outline-none bg-white">
+          <div className="relative mb-4">
 
-            <option>Select Role</option>
+            <input
+              type="text"
+              placeholder="Phone Number"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className="w-full px-4 py-4 rounded-xl outline-none bg-white"
+            />
 
-            <option>Student</option>
+          </div>
 
-            <option>Driver</option>
+          {/*For Student*/}
 
-          </select>
+          {role === "student" && (
+            <>
+              <div className="mb-4">
+                <input
+                  type="text"
+                  placeholder="Roll Number"
+                  value={rollNo}
+                  onChange={(e) => setRollNo(e.target.value)}
+                  className="w-full px-4 py-4 rounded-xl outline-none bg-white"
+                />
+              </div>
+
+              <div className="mb-4">
+                <input
+                  type="text"
+                  placeholder="Semester"
+                  value={semester}
+                  onChange={(e) => setSemester(e.target.value)}
+                  className="w-full px-4 py-4 rounded-xl outline-none bg-white"
+                />
+              </div>
+            </>
+          )}
+
+          {/*For driver*/}
+
+          {role === "driver" && (
+            <div className="mb-4">
+              <input
+                type="text"
+                placeholder="License Number"
+                value={licenseNo}
+                onChange={(e) => setLicenseNo(e.target.value)}
+                className="w-full px-4 py-4 rounded-xl outline-none bg-white"
+              />
+            </div>
+          )}
+
+
 
           {/* Password */}
 
@@ -108,6 +222,8 @@ export default function Register() {
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="w-full pl-12 pr-12 py-4 rounded-xl outline-none bg-white"
             />
 
@@ -130,15 +246,18 @@ export default function Register() {
             <input
               type="password"
               placeholder="Confirm Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               className="w-full pl-12 py-4 rounded-xl outline-none bg-white"
             />
 
           </div>
 
-          <button className="w-full py-4 rounded-xl text-white font-semibold bg-gradient-to-r from-blue-600 to-cyan-500 hover:scale-105 transition">
-
+          <button
+            onClick={handleRegister}
+            className="w-full py-4 rounded-xl text-white font-semibold bg-gradient-to-r from-blue-600 to-cyan-500 hover:scale-105 transition"
+          >
             Create Account
-
           </button>
 
           <p className="text-center text-white mt-8">

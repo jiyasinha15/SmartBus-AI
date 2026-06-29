@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 
 export default function DriverDashboard() {
+  const user = JSON.parse(localStorage.getItem("user"));
   return (
     <div className="space-y-8">
 
@@ -19,7 +20,7 @@ export default function DriverDashboard() {
       <div className="bg-gradient-to-r from-blue-700 via-cyan-600 to-sky-500 rounded-3xl p-8 text-white shadow-xl">
 
         <h1 className="text-4xl font-bold">
-          👋 Welcome, Rahul Sharma
+          👋 Welcome, {user?.name}
         </h1>
 
         <p className="mt-3 text-blue-100">
@@ -171,7 +172,7 @@ export default function DriverDashboard() {
             <div>
 
               <h2 className="text-2xl font-bold">
-                Rahul Sharma
+                {user?.name}
               </h2>
 
               <p className="text-gray-500">
@@ -188,7 +189,7 @@ export default function DriverDashboard() {
 
               <Phone className="text-green-600"/>
 
-              +91 9876543210
+              +91 {user?.phone}
 
             </div>
 

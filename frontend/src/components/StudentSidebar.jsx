@@ -25,7 +25,10 @@ export default function StudentSidebar() {
     const navigate = useNavigate();
 
     const handleLogout = () => {
-        localStorage.clear();
+        localStorage.removeItem("isLoggedIn");
+        localStorage.removeItem("userRole");
+        localStorage.removeItem("user");
+
         navigate("/", { replace: true });
     };
     return (

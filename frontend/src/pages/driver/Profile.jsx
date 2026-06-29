@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 
 export default function DriverProfile() {
+  const user = JSON.parse(localStorage.getItem("user"));
   return (
     <div className="space-y-8">
 
@@ -44,7 +45,7 @@ export default function DriverProfile() {
           <div className="flex-1">
 
             <h2 className="text-3xl font-bold">
-              Rahul Sharma
+              {user?.name}
             </h2>
 
             <p className="text-gray-500 mt-2">
@@ -55,17 +56,17 @@ export default function DriverProfile() {
 
               <div className="flex items-center gap-3">
                 <Phone className="text-green-600"/>
-                +91 9876543210
+                +91 {user?.phone}
               </div>
 
               <div className="flex items-center gap-3">
                 <Mail className="text-blue-600"/>
-                rahul@gmail.com
+                {user?.email}
               </div>
 
               <div className="flex items-center gap-3">
                 <BadgeCheck className="text-purple-600"/>
-                License : DL-123456789
+                {user?.licenseNo}
               </div>
 
               <div className="flex items-center gap-3">

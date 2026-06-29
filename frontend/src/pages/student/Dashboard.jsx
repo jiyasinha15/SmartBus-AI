@@ -10,6 +10,8 @@ import { CircleUserRound } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 
 export default function Dashboard() {
+  const user = JSON.parse(localStorage.getItem("user"));
+  
   return (
     <div className="space-y-8">
 
@@ -26,7 +28,7 @@ export default function Dashboard() {
         </p>
 
         <h1 className="text-5xl font-extrabold mt-3">
-          Jiya Sinha
+          {user?.name}
         </h1>
 
         <p className="mt-3 text-xl opacity-90">

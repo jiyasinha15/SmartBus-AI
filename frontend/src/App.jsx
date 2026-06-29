@@ -1,4 +1,4 @@
-import { BrowserRouter,Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import ChooseRole from "./pages/auth/ChooseRole";
 import Login from "./pages/auth/Login";
@@ -28,6 +28,7 @@ import Analytics from "./pages/admin/Analytics";
 import Reports from "./pages/admin/Reports";
 import Settings from "./pages/admin/Settings";
 import AdminLiveTracking from "./pages/admin/LiveTracking";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 
 function App() {
@@ -38,7 +39,15 @@ function App() {
         <Route path="/login/:role" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        <Route path="/student" element={<StudentLayout />}>
+        <Route
+          path="/student"
+          element={
+            <ProtectedRoute role="student">
+              <StudentLayout />
+            </ProtectedRoute>
+          }
+        >
+
           <Route path="dashboard" element={<StudentDashboard />} />
           <Route path="mybus" element={<MyBus />} />
           <Route path="tracking" element={<LiveTracking />} />
@@ -48,7 +57,14 @@ function App() {
           <Route path="settings" element={<StudentSettings />} />
         </Route>
 
-        <Route path="/driver" element={<DriverLayout />}>
+        <Route
+          path="/driver"
+          element={
+            <ProtectedRoute role="driver">
+              <DriverLayout />
+            </ProtectedRoute>
+          }
+        >
           <Route path="dashboard" element={<DriverDashboard />} />
           <Route path="route" element={<AssignedRoute />} />
           <Route path="students" element={<Students />} />
@@ -57,7 +73,14 @@ function App() {
           <Route path="settings" element={<DriverSettings />} />
         </Route>
 
-        <Route path="/admin" element={<AdminLayout />}>
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        >
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="buses" element={<Buses />} />
           <Route path="drivers" element={<Drivers />} />

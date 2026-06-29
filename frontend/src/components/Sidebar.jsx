@@ -76,9 +76,12 @@ export default function Sidebar() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.clear();
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("userRole");
+    localStorage.removeItem("user");
+
     navigate("/", { replace: true });
-  }
+  };
   return (
     <aside className="w-72 h-screen bg-slate-900 text-white flex flex-col">
 

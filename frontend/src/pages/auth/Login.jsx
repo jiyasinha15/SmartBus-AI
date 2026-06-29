@@ -7,8 +7,9 @@ import { useNavigate, useParams } from "react-router-dom";
 export default function Login() {
   const { role } = useParams();
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  
 
   return (
     <div className="min-h-screen flex bg-gradient-to-br from-blue-900 via-blue-700 to-cyan-500">
@@ -68,6 +69,8 @@ export default function Login() {
             <input
               type="email"
               placeholder="Email Address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full pl-12 pr-4 py-4 rounded-xl bg-white text-gray-800 outline-none focus:ring-4 focus:ring-cyan-300"
             />
 
@@ -80,6 +83,8 @@ export default function Login() {
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="w-full pl-12 pr-12 py-4 rounded-xl bg-white text-gray-800 outline-none focus:ring-4 focus:ring-cyan-300"
             />
 
@@ -106,6 +111,39 @@ export default function Login() {
 
           <button
             onClick={() => {
+              if (!email.trim()) {
+                alert("Please enter your email.");
+                return;
+              }
+
+              if (!password.trim()) {
+                alert("Please enter your password.");
+                return;
+              }
+
+              const users = JSON.parse(localStorage.getItem("users")) || [];
+
+              if (users.length === 0) {
+                alert("Please register first.");
+                return;
+              }
+
+              const loggedUser = users.find(
+                (user) =>
+                  user.email === email &&
+                  user.password === password &&
+                  user.role === role
+              );
+
+              if (!loggedUser) {
+                alert("Invalid Email or Password");
+                return;
+              }
+
+              localStorage.setItem("user", JSON.stringify(loggedUser));
+              localStorage.setItem("isLoggedIn", "true");
+              localStorage.setItem("userRole", role);
+
               if (role === "admin") {
                 navigate("/admin/dashboard");
               } else if (role === "student") {
@@ -125,6 +163,7 @@ export default function Login() {
 
             <Link
               to="/register"
+              state={{ role }}
               className="ml-2 font-bold text-cyan-300 hover:text-white"
             >
               Register

@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 export default function Profile() {
+    const user = JSON.parse(localStorage.getItem("user"));
     return (
         <div className="space-y-8">
 
@@ -43,7 +44,7 @@ export default function Profile() {
                     <div className="flex-1">
 
                         <h2 className="text-3xl font-bold">
-                            Aman Kumar
+                            {user?.name}
                         </h2>
 
                         <p className="text-gray-500 mt-2">
@@ -54,22 +55,22 @@ export default function Profile() {
 
                             <div className="flex items-center gap-3">
                                 <School className="text-blue-600" />
-                                <span>Roll No : 22CSE101</span>
+                                <span>{user?.rollNo}</span>
                             </div>
 
                             <div className="flex items-center gap-3">
                                 <Mail className="text-green-600" />
-                                <span>aman@gmail.com</span>
+                                <span>{user?.email}</span>
                             </div>
 
                             <div className="flex items-center gap-3">
                                 <Phone className="text-orange-500" />
-                                <span>+91 9876543210</span>
+                                <span>+91 {user?.phone}</span>
                             </div>
 
                             <div className="flex items-center gap-3">
                                 <Shield className="text-purple-600" />
-                                <span>Semester : 6th</span>
+                                <span>{user?.semester}</span>
                             </div>
 
                         </div>

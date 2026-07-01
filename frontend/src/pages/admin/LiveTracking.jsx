@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   MapPinned,
   Bus,
@@ -16,8 +16,8 @@ import {
   Polyline,
   useMap,
 } from "react-leaflet";
-import L from "leaflet";
 
+import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
 delete L.Icon.Default.prototype._getIconUrl;
@@ -25,8 +25,10 @@ delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
     "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+
   iconUrl:
     "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+
   shadowUrl:
     "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
 });
@@ -34,85 +36,123 @@ L.Icon.Default.mergeOptions({
 function ChangeMapView({ center }) {
   const map = useMap();
 
-  map.setView(center, 14);
+  useEffect(() => {
+    if (center) {
+      map.setView(center, 14);
+    }
+  }, [center, map]);
 
   return null;
 }
 
 export default function LiveTracking() {
+
   const [search, setSearch] = useState("");
 
-  const buses = [
-    {
-      id: 1,
-      bus: "BUS-01",
-      driver: "Rahul Sharma",
-      route: "North Campus",
-      students: 38,
-      speed: "42 km/h",
-      status: "Running",
-      nextStop: "City Mall",
+  const [buses, setBuses] = useState([]);
 
-      position: [28.6139, 77.2090],
+  const [selectedBus, setSelectedBus] =
+    useState(null);
 
-      routePath: [
-        [28.6139, 77.2090],
-        [28.6155, 77.2125],
-        [28.6185, 77.2160],
-        [28.6210, 77.2200],
-      ],
-    },
+  useEffect(() => {
 
-    {
-      id: 2,
-      bus: "BUS-02",
-      driver: "Amit Kumar",
-      route: "South Colony",
-      students: 34,
-      speed: "0 km/h",
-      status: "Stopped",
-      nextStop: "Bus Stand",
+    const savedBuses =
+      JSON.parse(
+        localStorage.getItem("buses")
+      ) || [];
 
-      position: [28.6185, 77.2180],
+    const liveBuses =
+      savedBuses.map((bus, index) => ({
 
-      routePath: [
-        [28.6185, 77.2180],
-        [28.6200, 77.2210],
-        [28.6225, 77.2240],
-        [28.6250, 77.2270],
-      ],
-    },
+        id: index + 1,
 
-    {
-      id: 3,
-      bus: "BUS-03",
-      driver: "Rakesh Verma",
-      route: "Engineering Block",
-      students: 41,
-      speed: "35 km/h",
-      status: "Running",
-      nextStop: "Library",
+        ...bus,
 
-      position: [28.6095, 77.2245],
+        bus: bus.busNo,
 
-      routePath: [
-        [28.6095, 77.2245],
-        [28.6115, 77.2265],
-        [28.6145, 77.2295],
-        [28.6175, 77.2325],
-      ],
-    },
-  ];
+        students:
+          Math.floor(
+            Math.random() * 25
+          ) + 20,
 
-  const [selectedBus, setSelectedBus] = useState(buses[0]);
+        speed:
+          bus.status === "Running"
+            ? `${Math.floor(
+              Math.random() * 25
+            ) + 35} km/h`
+            : "0 km/h",
+
+        nextStop: "Next Pickup Point",
+
+        position: [
+          28.6139 + index * 0.01,
+          77.209 + index * 0.01,
+        ],
+
+        routePath: [
+
+          [
+            28.6139 + index * 0.01,
+            77.209 + index * 0.01,
+          ],
+
+          [
+            28.616 + index * 0.01,
+            77.212 + index * 0.01,
+          ],
+
+          [
+            28.619 + index * 0.01,
+            77.216 + index * 0.01,
+          ],
+
+          [
+            28.622 + index * 0.01,
+            77.220 + index * 0.01,
+          ],
+
+        ],
+
+      }));
+
+    setBuses(liveBuses);
+
+    if (liveBuses.length) {
+      setSelectedBus(liveBuses[0]);
+    }
+
+  }, []);
 
   const filtered = buses.filter(
     (bus) =>
-      bus.bus.toLowerCase().includes(search.toLowerCase()) ||
-      bus.driver.toLowerCase().includes(search.toLowerCase())
+      bus.bus
+        ?.toLowerCase()
+        .includes(search.toLowerCase()) ||
+
+      bus.driver
+        ?.toLowerCase()
+        .includes(search.toLowerCase())
   );
 
+  const runningBuses =
+    buses.filter(
+      (b) => b.status === "Running"
+    ).length;
+
+  const totalStudents =
+    buses.reduce(
+      (sum, bus) =>
+        sum + bus.students,
+      0
+    );
+
+  const totalRoutes =
+    [...new Set(
+      buses.map((b) => b.route)
+    )].length;
+
   return (
+
     <div className="space-y-8">
 
       {/* Header */}
@@ -143,9 +183,13 @@ export default function LiveTracking() {
 
           <Bus size={35} />
 
-          <p className="mt-4">Active Buses</p>
+          <p className="mt-4">
+            Active Buses
+          </p>
 
-          <h2 className="text-3xl font-bold">15</h2>
+          <h2 className="text-3xl font-bold">
+            {runningBuses}
+          </h2>
 
         </div>
 
@@ -153,9 +197,13 @@ export default function LiveTracking() {
 
           <Users size={35} />
 
-          <p className="mt-4">Students Travelling</p>
+          <p className="mt-4">
+            Students Travelling
+          </p>
 
-          <h2 className="text-3xl font-bold">486</h2>
+          <h2 className="text-3xl font-bold">
+            {totalStudents}
+          </h2>
 
         </div>
 
@@ -163,9 +211,13 @@ export default function LiveTracking() {
 
           <Route size={35} />
 
-          <p className="mt-4">Running Routes</p>
+          <p className="mt-4">
+            Running Routes
+          </p>
 
-          <h2 className="text-3xl font-bold">12</h2>
+          <h2 className="text-3xl font-bold">
+            {totalRoutes}
+          </h2>
 
         </div>
 
@@ -173,9 +225,21 @@ export default function LiveTracking() {
 
           <Navigation size={35} />
 
-          <p className="mt-4">Delayed</p>
+          <p className="mt-4">
+            Maintenance
+          </p>
 
-          <h2 className="text-3xl font-bold">2</h2>
+          <h2 className="text-3xl font-bold">
+
+            {
+              buses.filter(
+                (b) =>
+                  b.status ===
+                  "Maintenance"
+              ).length
+            }
+
+          </h2>
 
         </div>
 
@@ -196,8 +260,10 @@ export default function LiveTracking() {
             type="text"
             placeholder="Search Bus or Driver..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-12 py-4 border rounded-2xl focus:ring-2 focus:ring-cyan-500 outline-none"
+            onChange={(e) =>
+              setSearch(e.target.value)
+            }
+            className="w-full pl-12 py-4 border rounded-2xl outline-none focus:ring-2 focus:ring-cyan-500"
           />
 
         </div>
@@ -222,12 +288,16 @@ export default function LiveTracking() {
 
               <div
                 key={bus.id}
-                onClick={() => setSelectedBus(bus)}
-                className={`border rounded-2xl p-4 cursor-pointer transition ${selectedBus.id === bus.id
-                  ? "border-blue-600 bg-blue-50"
-                  : "hover:bg-slate-50"
+                onClick={() =>
+                  setSelectedBus(bus)
+                }
+                className={`border rounded-2xl p-4 cursor-pointer transition ${selectedBus?.id ===
+                    bus.id
+                    ? "border-blue-600 bg-blue-50"
+                    : "hover:bg-slate-50"
                   }`}
               >
+
                 <div className="flex justify-between">
 
                   <h3 className="font-bold">
@@ -237,12 +307,18 @@ export default function LiveTracking() {
                   </h3>
 
                   <span
-                    className={`text-sm px-3 py-1 rounded-full ${bus.status === "Running"
-                      ? "bg-green-100 text-green-700"
-                      : "bg-red-100 text-red-700"
+                    className={`text-sm px-3 py-1 rounded-full ${bus.status ===
+                        "Running"
+                        ? "bg-green-100 text-green-700"
+                        : bus.status ===
+                          "Idle"
+                          ? "bg-yellow-100 text-yellow-700"
+                          : "bg-red-100 text-red-700"
                       }`}
                   >
+
                     {bus.status}
+
                   </span>
 
                 </div>
@@ -280,25 +356,43 @@ export default function LiveTracking() {
           </div>
 
           <MapContainer
-            center={[28.6139, 77.2090]}
+            center={
+              selectedBus
+                ? selectedBus.position
+                : [28.6139, 77.2090]
+            }
             zoom={13}
-            style={{ height: "450px", width: "100%" }}
+            style={{
+              height: "450px",
+              width: "100%",
+            }}
           >
 
-            <Polyline
-              positions={selectedBus.routePath}
-              pathOptions={{
-                color: "#2563eb",
-                weight: 5,
-              }}
-            />
-
-            <ChangeMapView center={selectedBus.position} />
-
             <TileLayer
-              attribution='&copy; OpenStreetMap contributors'
+              attribution="&copy; OpenStreetMap contributors"
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
+
+            {selectedBus && (
+
+              <>
+                <ChangeMapView
+                  center={selectedBus.position}
+                />
+
+                <Polyline
+                  positions={
+                    selectedBus.routePath
+                  }
+                  pathOptions={{
+                    color: "#2563eb",
+                    weight: 5,
+                  }}
+                />
+
+              </>
+
+            )}
 
             {filtered.map((bus) => (
 
@@ -306,13 +400,16 @@ export default function LiveTracking() {
                 key={bus.id}
                 position={bus.position}
                 eventHandlers={{
-                  click: () => setSelectedBus(bus),
+                  click: () =>
+                    setSelectedBus(bus),
                 }}
               >
 
                 <Popup>
 
-                  <strong>{bus.bus}</strong>
+                  <strong>
+                    {bus.bus}
+                  </strong>
 
                   <br />
 
@@ -321,6 +418,10 @@ export default function LiveTracking() {
                   <br />
 
                   Route: {bus.route}
+
+                  <br />
+
+                  Status: {bus.status}
 
                   <br />
 
@@ -350,80 +451,140 @@ export default function LiveTracking() {
 
           </h2>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          {selectedBus ? (
 
-            <div>
+            <div className="grid md:grid-cols-2 gap-6">
 
-              <p className="text-gray-500">Bus Number</p>
+              <div>
 
-              <h3 className="font-bold text-xl">
+                <p className="text-gray-500">
+                  Bus Number
+                </p>
 
-                {selectedBus.bus}
-              </h3>
+                <h3 className="font-bold text-xl">
+
+                  {selectedBus.bus}
+
+                </h3>
+
+              </div>
+
+              <div>
+
+                <p className="text-gray-500">
+                  Driver
+                </p>
+
+                <h3 className="font-bold text-xl">
+
+                  {selectedBus.driver}
+
+                </h3>
+
+              </div>
+
+              <div>
+
+                <p className="text-gray-500">
+                  Route
+                </p>
+
+                <h3 className="font-bold text-xl">
+
+                  {selectedBus.route}
+
+                </h3>
+
+              </div>
+
+              <div>
+
+                <p className="text-gray-500">
+                  Students
+                </p>
+
+                <h3 className="font-bold text-xl">
+
+                  {selectedBus.students}
+
+                </h3>
+
+              </div>
+
+              <div>
+
+                <p className="text-gray-500">
+                  Speed
+                </p>
+
+                <h3 className="font-bold text-xl text-green-600">
+
+                  {selectedBus.speed}
+
+                </h3>
+
+              </div>
+
+              <div>
+
+                <p className="text-gray-500">
+                  Next Stop
+                </p>
+
+                <h3 className="font-bold text-xl">
+
+                  {selectedBus.nextStop}
+
+                </h3>
+
+              </div>
+
+              <div>
+
+                <p className="text-gray-500">
+                  Status
+                </p>
+
+                <span
+                  className={`px-4 py-2 rounded-full font-semibold ${selectedBus.status === "Running"
+                      ? "bg-green-100 text-green-700"
+                      : selectedBus.status === "Idle"
+                        ? "bg-yellow-100 text-yellow-700"
+                        : "bg-red-100 text-red-700"
+                    }`}
+                >
+
+                  {selectedBus.status}
+
+                </span>
+
+              </div>
+
+              <div>
+
+                <p className="text-gray-500">
+                  Pickup Points
+                </p>
+
+                <p className="font-medium break-words">
+
+                  {selectedBus.pickupPoints}
+
+                </p>
+
+              </div>
 
             </div>
 
-            <div>
+          ) : (
 
-              <p className="text-gray-500">Driver</p>
+            <div className="h-full flex items-center justify-center text-gray-500">
 
-              <h3 className="font-bold text-xl">
-
-                {selectedBus.driver}
-
-              </h3>
+              No Bus Selected
 
             </div>
 
-            <div>
-
-              <p className="text-gray-500">Route</p>
-
-              <h3 className="font-bold text-xl">
-
-                {selectedBus.route}
-
-              </h3>
-
-            </div>
-
-            <div>
-
-              <p className="text-gray-500">Students</p>
-
-              <h3 className="font-bold text-xl">
-
-                {selectedBus.students}
-
-              </h3>
-
-            </div>
-
-            <div>
-
-              <p className="text-gray-500">Speed</p>
-
-              <h3 className="font-bold text-xl text-green-600">
-
-                {selectedBus.speed}
-
-              </h3>
-
-            </div>
-
-            <div>
-
-              <p className="text-gray-500">Next Stop</p>
-
-              <h3 className="font-bold text-xl">
-
-                {selectedBus.nextStop}
-
-              </h3>
-
-            </div>
-
-          </div>
+          )}
 
         </div>
 
@@ -431,7 +592,6 @@ export default function LiveTracking() {
 
     </div>
 
-
-
   );
+
 }

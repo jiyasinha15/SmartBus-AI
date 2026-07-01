@@ -19,19 +19,18 @@ export default function Dashboard() {
   const [buses, setBuses] = useState([]);
 
   useEffect(() => {
-    const users =
+    const studentsData =
       JSON.parse(localStorage.getItem("users")) || [];
+
+    const driversData =
+      JSON.parse(localStorage.getItem("drivers")) || [];
 
     const busesData =
       JSON.parse(localStorage.getItem("buses")) || [];
 
-    setStudents(
-      users.filter((u) => u.role === "student")
-    );
+    setStudents(studentsData);
 
-    setDrivers(
-      users.filter((u) => u.role === "driver")
-    );
+    setDrivers(driversData);
 
     setBuses(busesData);
   }, []);

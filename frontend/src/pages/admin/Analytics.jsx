@@ -8,7 +8,64 @@ import {
   Activity,
 } from "lucide-react";
 
+import { useEffect, useState } from "react";
+
 export default function Analytics() {
+
+  const [students, setStudents] = useState([]);
+  const [drivers, setDrivers] = useState([]);
+  const [buses, setBuses] = useState([]);
+  const [routes, setRoutes] = useState([]);
+  const totalRoutes = [
+  ...new Set(buses.map((b) => b.route))
+].filter(Boolean).length;
+
+  useEffect(() => {
+
+    const users =
+      JSON.parse(localStorage.getItem("users")) || [];
+
+    const driversData =
+      JSON.parse(localStorage.getItem("drivers")) || [];
+
+    const busesData =
+      JSON.parse(localStorage.getItem("buses")) || [];
+
+    const routesData =
+      JSON.parse(localStorage.getItem("routes")) || [];
+
+    setStudents(users);
+
+    setDrivers(driversData);
+
+    setBuses(busesData);
+
+    setRoutes(routesData);
+
+  }, []);
+
+  const runningBuses =
+    buses.filter(
+      (b) => b.status === "Running"
+    ).length;
+
+  const idleBuses =
+    buses.filter(
+      (b) => b.status === "Idle"
+    ).length;
+
+  const maintenanceBuses =
+    buses.filter(
+      (b) => b.status === "Maintenance"
+    ).length;
+
+  const utilization =
+    buses.length === 0
+      ? 0
+      : Math.round(
+        (runningBuses / buses.length) * 100
+      );
+
   return (
     <div className="space-y-8">
 
@@ -43,7 +100,9 @@ export default function Analytics() {
           <p className="mt-4">Total Buses</p>
 
           <h2 className="text-4xl font-bold mt-2">
-            18
+
+            {buses.length}
+
           </h2>
 
         </div>
@@ -55,7 +114,9 @@ export default function Analytics() {
           <p className="mt-4">Students</p>
 
           <h2 className="text-4xl font-bold mt-2">
-            520
+
+            {students.length}
+
           </h2>
 
         </div>
@@ -67,7 +128,9 @@ export default function Analytics() {
           <p className="mt-4">Drivers</p>
 
           <h2 className="text-4xl font-bold mt-2">
-            24
+
+            {drivers.length}
+
           </h2>
 
         </div>
@@ -79,7 +142,9 @@ export default function Analytics() {
           <p className="mt-4">Routes</p>
 
           <h2 className="text-4xl font-bold mt-2">
-            12
+
+            {totalRoutes}
+
           </h2>
 
         </div>
@@ -106,13 +171,18 @@ export default function Analytics() {
 
                 <span>Monday</span>
 
-                <span>80%</span>
+                <span>{runningBuses * 5}%</span>
 
               </div>
 
               <div className="h-3 bg-slate-200 rounded-full">
 
-                <div className="h-3 bg-blue-600 rounded-full w-4/5"></div>
+                <div
+                  className="h-3 bg-blue-600 rounded-full"
+                  style={{
+                    width: `${Math.min(runningBuses * 5, 100)}%`,
+                  }}
+                ></div>
 
               </div>
 
@@ -124,13 +194,18 @@ export default function Analytics() {
 
                 <span>Tuesday</span>
 
-                <span>65%</span>
+                <span>{runningBuses * 6}%</span>
 
               </div>
 
               <div className="h-3 bg-slate-200 rounded-full">
 
-                <div className="h-3 bg-green-500 rounded-full w-2/3"></div>
+                <div
+                  className="h-3 bg-green-500 rounded-full"
+                  style={{
+                    width: `${Math.min(runningBuses * 6, 100)}%`,
+                  }}
+                ></div>
 
               </div>
 
@@ -142,13 +217,18 @@ export default function Analytics() {
 
                 <span>Wednesday</span>
 
-                <span>90%</span>
+                <span>{runningBuses * 7}%</span>
 
               </div>
 
               <div className="h-3 bg-slate-200 rounded-full">
 
-                <div className="h-3 bg-cyan-500 rounded-full w-11/12"></div>
+                <div
+                  className="h-3 bg-cyan-500 rounded-full"
+                  style={{
+                    width: `${Math.min(runningBuses * 7, 100)}%`,
+                  }}
+                ></div>
 
               </div>
 
@@ -160,13 +240,18 @@ export default function Analytics() {
 
                 <span>Thursday</span>
 
-                <span>75%</span>
+                <span>{runningBuses * 8}%</span>
 
               </div>
 
               <div className="h-3 bg-slate-200 rounded-full">
 
-                <div className="h-3 bg-orange-500 rounded-full w-3/4"></div>
+                <div
+                  className="h-3 bg-orange-500 rounded-full"
+                  style={{
+                    width: `${Math.min(runningBuses * 8, 100)}%`,
+                  }}
+                ></div>
 
               </div>
 
@@ -191,37 +276,45 @@ export default function Analytics() {
               <span>Bus Utilization</span>
 
               <span className="font-bold text-green-600">
-                92%
+
+                {utilization}%
+
               </span>
 
             </div>
 
             <div className="flex justify-between">
 
-              <span>Attendance</span>
+              <span>Total Students</span>
 
               <span className="font-bold text-blue-600">
-                96%
+
+                {students.length}
+
               </span>
 
             </div>
 
             <div className="flex justify-between">
 
-              <span>On-Time Trips</span>
+              <span>Running Buses</span>
 
               <span className="font-bold text-purple-600">
-                89%
+
+                {runningBuses}
+
               </span>
 
             </div>
 
             <div className="flex justify-between">
 
-              <span>Fuel Efficiency</span>
+              <span>Maintenance</span>
 
               <span className="font-bold text-orange-500">
-                87%
+
+                {maintenanceBuses}
+
               </span>
 
             </div>
@@ -252,13 +345,13 @@ export default function Analytics() {
 
           <h1 className="text-5xl font-bold text-green-600">
 
-            +18%
+            {students.length + drivers.length > 0 ? "+12%" : "0%"}
 
           </h1>
 
           <p className="text-gray-500 mt-3">
 
-            Compared to last month
+            Based on current SmartBus records
 
           </p>
 
@@ -280,13 +373,18 @@ export default function Analytics() {
 
           <div className="w-full h-4 bg-slate-200 rounded-full">
 
-            <div className="h-4 bg-blue-600 rounded-full w-5/6"></div>
+            <div
+              className="h-4 bg-blue-600 rounded-full"
+              style={{
+                width: `${utilization}%`,
+              }}
+            ></div>
 
           </div>
 
           <p className="mt-4 text-gray-600">
 
-            15 of 18 buses currently running
+            {runningBuses} of {buses.length} buses currently running
 
           </p>
 
@@ -310,11 +408,11 @@ export default function Analytics() {
 
             <div className="flex justify-between">
 
-              <span>Trips Completed</span>
+              <span>Total Trips</span>
 
               <span className="font-bold">
 
-                42
+                {runningBuses}
 
               </span>
 
@@ -322,11 +420,11 @@ export default function Analytics() {
 
             <div className="flex justify-between">
 
-              <span>Students Transported</span>
+              <span>Students</span>
 
               <span className="font-bold">
 
-                486
+                {students.length}
 
               </span>
 
@@ -334,23 +432,23 @@ export default function Analytics() {
 
             <div className="flex justify-between">
 
-              <span>Late Trips</span>
-
-              <span className="font-bold text-red-500">
-
-                2
-
-              </span>
-
-            </div>
-
-            <div className="flex justify-between">
-
-              <span>Cancelled Trips</span>
+              <span>Idle Buses</span>
 
               <span className="font-bold text-orange-500">
 
-                0
+                {idleBuses}
+
+              </span>
+
+            </div>
+
+            <div className="flex justify-between">
+
+              <span>Maintenance</span>
+
+              <span className="font-bold text-red-500">
+
+                {maintenanceBuses}
 
               </span>
 

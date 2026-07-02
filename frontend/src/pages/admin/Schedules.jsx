@@ -1,68 +1,123 @@
-import { useState } from "react";
-import {
-    Search,
-    Plus,
-    Eye,
-    Pencil,
-    Trash2,
-    CalendarDays,
-    Bus,
-    UserCog,
-    Clock,
-} from "lucide-react";
+import { CalendarDays, Plus } from "lucide-react";
+import { useEffect, useState } from "react";
+
+import ScheduleTable from "../../components/ScheduleTable";
+import AddScheduleModal from "../../components/AddSCheduleModal";
 
 export default function Schedules() {
+
+    const [open, setOpen] = useState(false);
+
+    const [schedules, setSchedules] = useState([]);
+
+    const [editSchedule, setEditSchedule] = useState(null);
+
+    const [viewSchedule, setViewSchedule] = useState(null);
+
     const [search, setSearch] = useState("");
 
-    const schedules = [
-        {
-            id: 1,
-            bus: "BUS-07",
-            driver: "Rahul Sharma",
-            route: "North Campus",
-            departure: "08:00 AM",
-            arrival: "08:45 AM",
-            status: "Active",
-        },
-        {
-            id: 2,
-            bus: "BUS-03",
-            driver: "Amit Kumar",
-            route: "City Center",
-            departure: "08:30 AM",
-            arrival: "09:10 AM",
-            status: "Active",
-        },
-        {
-            id: 3,
-            bus: "BUS-05",
-            driver: "Vivek Singh",
-            route: "South Colony",
-            departure: "09:00 AM",
-            arrival: "09:50 AM",
-            status: "Inactive",
-        },
-        {
-            id: 4,
-            bus: "BUS-09",
-            driver: "Rakesh Verma",
-            route: "Engineering Block",
-            departure: "07:45 AM",
-            arrival: "08:20 AM",
-            status: "Active",
-        },
-    ];
+    const [statusFilter, setStatusFilter] =
+        useState("All");
 
-    const filteredSchedules = schedules.filter(
-        (item) =>
-            item.bus.toLowerCase().includes(search.toLowerCase()) ||
-            item.driver.toLowerCase().includes(search.toLowerCase()) ||
-            item.route.toLowerCase().includes(search.toLowerCase())
-    );
+    useEffect(() => {
+
+        const buses =
+            JSON.parse(
+                localStorage.getItem("buses")
+            ) || [];
+
+        const savedSchedules =
+            JSON.parse(
+                localStorage.getItem("schedules")
+            ) || [];
+
+        const updatedSchedules =
+            buses.map((bus) => {
+
+                const existing =
+                    savedSchedules.find(
+                        (s) =>
+                            s.busNo === bus.busNo
+                    );
+
+                if (existing)
+                    return existing;
+
+                return {
+
+                    busNo: bus.busNo,
+
+                    driver: bus.driver,
+
+                    route: bus.route,
+
+                    departure: "",
+
+                    arrival: "",
+
+                    status:
+                        bus.status === "Maintenance"
+                            ? "Inactive"
+                            : "Active",
+
+                };
+
+            });
+
+        setSchedules(updatedSchedules);
+
+        localStorage.setItem(
+            "schedules",
+            JSON.stringify(updatedSchedules)
+        );
+
+    }, []);
+
+    const filteredSchedules =
+        schedules.filter((schedule) => {
+
+            const matchesSearch =
+
+                schedule.busNo
+                    .toLowerCase()
+                    .includes(search.toLowerCase()) ||
+
+                schedule.driver
+                    .toLowerCase()
+                    .includes(search.toLowerCase()) ||
+
+                schedule.route
+                    .toLowerCase()
+                    .includes(search.toLowerCase());
+
+            const matchesStatus =
+
+                statusFilter === "All"
+                    ? true
+                    : schedule.status === statusFilter;
+
+            return (
+                matchesSearch &&
+                matchesStatus
+            );
+
+        });
+
+    const activeSchedules =
+        schedules.filter(
+            (s) =>
+                s.status === "Active"
+        ).length;
+
+    const inactiveSchedules =
+        schedules.filter(
+            (s) =>
+                s.status === "Inactive"
+        ).length;
 
     return (
-        <div className="space-y-8">
 
+        <div className="space-y-8">
             {/* Header */}
 
             <div className="bg-gradient-to-r from-blue-700 via-cyan-600 to-sky-500 rounded-3xl p-8 text-white shadow-xl">
@@ -75,7 +130,7 @@ export default function Schedules() {
 
                             <CalendarDays size={38} />
 
-                            Schedules
+                            Schedule Management
 
                         </h1>
 
@@ -87,17 +142,6 @@ export default function Schedules() {
 
                     </div>
 
-                    <button className="bg-white text-blue-700 px-6 py-3 rounded-2xl font-semibold hover:scale-105 transition">
-
-                        <div className="flex items-center gap-2">
-
-                            <Plus size={18} />
-
-                            Add Schedule
-
-                        </div>
-
-                    </button>
 
                 </div>
 
@@ -109,176 +153,248 @@ export default function Schedules() {
 
                 <div className="bg-gradient-to-r from-blue-600 to-cyan-500 rounded-3xl p-6 text-white shadow-xl">
 
-                    <CalendarDays size={34} />
+                    <p>Total Schedules</p>
 
-                    <p className="mt-4">Total Schedules</p>
+                    <h2 className="text-4xl font-bold mt-3">
 
-                    <h2 className="text-3xl font-bold mt-2">18</h2>
+                        {schedules.length}
+
+                    </h2>
 
                 </div>
 
                 <div className="bg-gradient-to-r from-green-500 to-emerald-500 rounded-3xl p-6 text-white shadow-xl">
 
-                    <Bus size={34} />
+                    <p>Active</p>
 
-                    <p className="mt-4">Running Today</p>
+                    <h2 className="text-4xl font-bold mt-3">
 
-                    <h2 className="text-3xl font-bold mt-2">15</h2>
+                        {activeSchedules}
+
+                    </h2>
 
                 </div>
 
-                <div className="bg-gradient-to-r from-orange-500 to-yellow-500 rounded-3xl p-6 text-white shadow-xl">
+                <div className="bg-gradient-to-r from-red-500 to-pink-500 rounded-3xl p-6 text-white shadow-xl">
 
-                    <Clock size={34} />
+                    <p>Inactive</p>
 
-                    <p className="mt-4">Completed</p>
+                    <h2 className="text-4xl font-bold mt-3">
 
-                    <h2 className="text-3xl font-bold mt-2">3</h2>
+                        {inactiveSchedules}
+
+                    </h2>
 
                 </div>
 
             </div>
 
-            {/* Search */}
+            {/* Search & Filter */}
 
-            <div className="bg-white rounded-3xl shadow-xl p-5">
+            <div className="bg-white rounded-3xl shadow-xl p-6">
 
-                <div className="relative">
-
-                    <Search
-                        className="absolute left-4 top-4 text-gray-400"
-                        size={20}
-                    />
+                <div className="grid md:grid-cols-2 gap-4">
 
                     <input
                         type="text"
-                        placeholder="Search schedule..."
+                        placeholder="Search Bus / Driver / Route..."
                         value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        className="w-full pl-12 py-4 border rounded-2xl focus:ring-2 focus:ring-cyan-500 outline-none"
+                        onChange={(e) =>
+                            setSearch(e.target.value)
+                        }
+                        className="border rounded-xl p-4 outline-none"
                     />
 
+                    <select
+                        value={statusFilter}
+                        onChange={(e) =>
+                            setStatusFilter(
+                                e.target.value
+                            )
+                        }
+                        className="border rounded-xl p-4"
+                    >
+
+                        <option value="All">
+                            All Status
+                        </option>
+
+                        <option value="Active">
+                            Active
+                        </option>
+
+                        <option value="Inactive">
+                            Inactive
+                        </option>
+
+                    </select>
+
                 </div>
 
             </div>
 
-            {/* Table */}
+            {/* Schedule Table */}
 
-            <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
+            <ScheduleTable
+                schedules={filteredSchedules}
+                setSchedules={setSchedules}
+                setOpen={setOpen}
+                setEditSchedule={setEditSchedule}
+                setViewSchedule={setViewSchedule}
+            />
 
-                <div className="overflow-x-auto">
+            <AddScheduleModal
+                open={open}
+                setOpen={setOpen}
+                schedules={schedules}
+                setSchedules={setSchedules}
+                editSchedule={editSchedule}
+                setEditSchedule={setEditSchedule}
+            />
 
-                    <table className="w-full">
+            {/* View Schedule Modal */}
 
-                        <thead className="bg-slate-100">
+            {viewSchedule && (
 
-                            <tr>
-                                <th className="text-left p-5">Bus</th>
-                                <th className="text-left p-5">Driver</th>
-                                <th className="text-left p-5">Route</th>
-                                <th className="text-left p-5">Departure</th>
-                                <th className="text-left p-5">Arrival</th>
-                                <th className="text-left p-5">Status</th>
-                                <th className="text-center p-5">Actions</th>
-                            </tr>
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
 
-                        </thead>
+                    <div className="bg-white w-[550px] rounded-3xl shadow-2xl p-8">
 
-                        <tbody>
+                        <h2 className="text-3xl font-bold mb-6">
 
-                            {filteredSchedules.map((item) => (
+                            Schedule Details
 
-                                <tr
-                                    key={item.id}
-                                    className="border-t hover:bg-slate-50 transition"
+                        </h2>
+
+                        <div className="space-y-5">
+
+                            <div className="flex justify-between border-b pb-3">
+
+                                <span className="font-semibold">
+
+                                    Bus Number
+
+                                </span>
+
+                                <span>
+
+                                    {viewSchedule.busNo}
+
+                                </span>
+
+                            </div>
+
+                            <div className="flex justify-between border-b pb-3">
+
+                                <span className="font-semibold">
+
+                                    Driver
+
+                                </span>
+
+                                <span>
+
+                                    {viewSchedule.driver}
+
+                                </span>
+
+                            </div>
+
+                            <div className="flex justify-between border-b pb-3">
+
+                                <span className="font-semibold">
+
+                                    Route
+
+                                </span>
+
+                                <span>
+
+                                    {viewSchedule.route}
+
+                                </span>
+
+                            </div>
+
+                            <div className="flex justify-between border-b pb-3">
+
+                                <span className="font-semibold">
+
+                                    Departure
+
+                                </span>
+
+                                <span>
+
+                                    {viewSchedule.departure}
+
+                                </span>
+
+                            </div>
+
+                            <div className="flex justify-between border-b pb-3">
+
+                                <span className="font-semibold">
+
+                                    Arrival
+
+                                </span>
+
+                                <span>
+
+                                    {viewSchedule.arrival}
+
+                                </span>
+
+                            </div>
+
+                            <div className="flex justify-between">
+
+                                <span className="font-semibold">
+
+                                    Status
+
+                                </span>
+
+                                <span
+                                    className={`px-3 py-1 rounded-full text-white ${viewSchedule.status === "Active"
+                                        ? "bg-green-500"
+                                        : "bg-red-500"
+                                        }`}
                                 >
 
-                                    <td className="p-5 font-semibold">{item.bus}</td>
+                                    {viewSchedule.status}
 
-                                    <td className="p-5">
+                                </span>
 
-                                        <div className="flex items-center gap-2">
+                            </div>
 
-                                            <UserCog size={16} />
+                        </div>
 
-                                            {item.driver}
+                        <div className="flex justify-end mt-8">
 
-                                        </div>
+                            <button
+                                onClick={() =>
+                                    setViewSchedule(null)
+                                }
+                                className="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 text-white hover:scale-105 transition"
+                            >
 
-                                    </td>
+                                Close
 
-                                    <td className="p-5">{item.route}</td>
+                            </button>
 
-                                    <td className="p-5">{item.departure}</td>
+                        </div>
 
-                                    <td className="p-5">{item.arrival}</td>
-
-                                    <td className="p-5">
-
-                                        <span
-                                            className={`px-3 py-1 rounded-full text-sm font-semibold ${item.status === "Active"
-                                                    ? "bg-green-100 text-green-700"
-                                                    : "bg-red-100 text-red-700"
-                                                }`}
-                                        >
-                                            {item.status}
-                                        </span>
-
-                                    </td>
-
-                                    <td className="p-5">
-
-                                        <div className="flex justify-center gap-3">
-
-                                            <button className="p-2 rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white transition">
-
-                                                <Eye size={18} />
-
-                                            </button>
-
-                                            <button className="p-2 rounded-lg bg-green-100 text-green-600 hover:bg-green-600 hover:text-white transition">
-
-                                                <Pencil size={18} />
-
-                                            </button>
-
-                                            <button className="p-2 rounded-lg bg-red-100 text-red-600 hover:bg-red-600 hover:text-white transition">
-
-                                                <Trash2 size={18} />
-
-                                            </button>
-
-                                        </div>
-
-                                    </td>
-
-                                </tr>
-
-                            ))}
-
-                            {filteredSchedules.length === 0 && (
-
-                                <tr>
-
-                                    <td
-                                        colSpan="7"
-                                        className="text-center py-10 text-gray-500"
-                                    >
-                                        No schedules found.
-                                    </td>
-
-                                </tr>
-
-                            )}
-
-                        </tbody>
-
-                    </table>
+                    </div>
 
                 </div>
 
-            </div>
+            )}
 
         </div>
+
     );
+
 }
+

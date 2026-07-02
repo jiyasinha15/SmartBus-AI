@@ -292,9 +292,9 @@ export default function LiveTracking() {
                   setSelectedBus(bus)
                 }
                 className={`border rounded-2xl p-4 cursor-pointer transition ${selectedBus?.id ===
-                    bus.id
-                    ? "border-blue-600 bg-blue-50"
-                    : "hover:bg-slate-50"
+                  bus.id
+                  ? "border-blue-600 bg-blue-50"
+                  : "hover:bg-slate-50"
                   }`}
               >
 
@@ -308,12 +308,12 @@ export default function LiveTracking() {
 
                   <span
                     className={`text-sm px-3 py-1 rounded-full ${bus.status ===
-                        "Running"
-                        ? "bg-green-100 text-green-700"
-                        : bus.status ===
-                          "Idle"
-                          ? "bg-yellow-100 text-yellow-700"
-                          : "bg-red-100 text-red-700"
+                      "Running"
+                      ? "bg-green-100 text-green-700"
+                      : bus.status ===
+                        "Idle"
+                        ? "bg-yellow-100 text-yellow-700"
+                        : "bg-red-100 text-red-700"
                       }`}
                   >
 
@@ -345,7 +345,7 @@ export default function LiveTracking() {
 
         {/* Live Map */}
 
-        <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
+        <div className="bg-white rounded-3xl shadow-xl flex flex-col">
 
           <div className="p-6 border-b">
 
@@ -356,17 +356,12 @@ export default function LiveTracking() {
           </div>
 
           <MapContainer
-            center={
-              selectedBus
-                ? selectedBus.position
-                : [28.6139, 77.2090]
-            }
-            zoom={13}
-            style={{
-              height: "450px",
-              width: "100%",
-            }}
-          >
+    className="flex-1"
+    style={{
+      minHeight: "700px",
+      width: "100%",
+    }}
+  >
 
             <TileLayer
               attribution="&copy; OpenStreetMap contributors"
@@ -547,10 +542,10 @@ export default function LiveTracking() {
 
                 <span
                   className={`px-4 py-2 rounded-full font-semibold ${selectedBus.status === "Running"
-                      ? "bg-green-100 text-green-700"
-                      : selectedBus.status === "Idle"
-                        ? "bg-yellow-100 text-yellow-700"
-                        : "bg-red-100 text-red-700"
+                    ? "bg-green-100 text-green-700"
+                    : selectedBus.status === "Idle"
+                      ? "bg-yellow-100 text-yellow-700"
+                      : "bg-red-100 text-red-700"
                     }`}
                 >
 

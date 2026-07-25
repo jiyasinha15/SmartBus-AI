@@ -200,7 +200,7 @@ ADMIN_SECRET_KEY=your_admin_secret
 
 ## 👩‍💻 Author
 
-**Ditya Manral**
+**Jiya Sinha**
 
 GitHub: https://github.com/DityaManral11
 

@@ -202,7 +202,7 @@ ADMIN_SECRET_KEY=your_admin_secret
 
 **Jiya Sinha**
 
-GitHub: https://github.com/DityaManral11
+GitHub: https://github.com/jiyasinha15
 
 ---
 

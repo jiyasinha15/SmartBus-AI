@@ -748,7 +748,7 @@ export default function StudentSettings() {
 
             disabled={saving}
 
-            className="flex items-center justify-center gap-2 rounded-xl bg-white dark:bg-slate-900 /20 px-5 py-3 font-semibold transition hover:bg-white dark:bg-slate-900 /30 disabled:opacity-60"
+           className="flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 font-semibold text-blue-600 shadow-md transition hover:bg-blue-50 disabled:opacity-60 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
 
           >
 

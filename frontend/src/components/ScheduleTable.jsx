@@ -3,10 +3,35 @@ import {
   LoaderCircle,
   Pencil,
   Trash2,
+  Sun,
+  Moon,
 } from "lucide-react";
 
 import { useState } from "react";
 import api from "../services/api";
+
+function formatDisplayTime(value) {
+  if (!value) return "Not available";
+
+  const [hoursText, minutesText] =
+    String(value).slice(0, 5).split(":");
+
+  const hours = Number(hoursText);
+  const minutes = Number(minutesText);
+
+  if (Number.isNaN(hours) || Number.isNaN(minutes)) {
+    return String(value);
+  }
+
+  const date = new Date();
+  date.setHours(hours, minutes, 0, 0);
+
+  return date.toLocaleTimeString("en-IN", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+}
 
 export default function ScheduleTable({
   schedules,
@@ -61,47 +86,47 @@ export default function ScheduleTable({
   };
 
   return (
-    <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
+    <div className="overflow-hidden rounded-3xl bg-white shadow-xl dark:bg-slate-800">
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[1000px]">
-          <thead className="bg-slate-100">
+        <table className="w-full min-w-[1250px]">
+          <thead className="bg-slate-100 dark:bg-slate-900">
             <tr>
-              <th className="text-left p-5">
+              <th className="p-5 text-left text-slate-700 dark:text-slate-300">
                 Bus
               </th>
 
-              <th className="text-left p-5">
+              <th className="p-5 text-left text-slate-700 dark:text-slate-300">
                 Driver
               </th>
 
-              <th className="text-left p-5">
+              <th className="p-5 text-left text-slate-700 dark:text-slate-300">
                 Route
               </th>
 
-              <th className="text-left p-5">
-                Departure
+              <th className="p-5 text-left text-slate-700 dark:text-slate-300">
+                Morning Trip
               </th>
 
-              <th className="text-left p-5">
-                Arrival
+              <th className="p-5 text-left text-slate-700 dark:text-slate-300">
+                Evening Return
               </th>
 
-              <th className="text-left p-5">
+              <th className="p-5 text-left text-slate-700 dark:text-slate-300">
                 Status
               </th>
 
-              <th className="text-center p-5">
+              <th className="p-5 text-center text-slate-700 dark:text-slate-300">
                 Actions
               </th>
             </tr>
           </thead>
 
-          <tbody>
+          <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
             {schedules.length === 0 ? (
               <tr>
                 <td
                   colSpan="7"
-                  className="text-center py-12 text-gray-500"
+                  className="py-12 text-center text-gray-500 dark:text-slate-400"
                 >
                   No Schedule Found
                 </td>
@@ -114,28 +139,28 @@ export default function ScheduleTable({
                 return (
                   <tr
                     key={schedule.id}
-                    className="border-t hover:bg-slate-50 transition"
+                    className="transition hover:bg-slate-50 dark:hover:bg-slate-700/60"
                   >
                     <td className="p-5">
-                      <p className="font-semibold text-gray-900">
+                      <p className="font-semibold text-gray-900 dark:text-white">
                         {schedule.busNo}
                       </p>
 
                       {schedule.busName &&
                         schedule.busName !==
                           "Not available" && (
-                          <p className="mt-1 text-sm text-gray-500">
+                          <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">
                             {schedule.busName}
                           </p>
                         )}
                     </td>
 
-                    <td className="p-5">
+                    <td className="p-5 text-slate-700 dark:text-slate-300">
                       {schedule.driver}
                     </td>
 
                     <td className="p-5">
-                      <p className="font-medium text-gray-900">
+                      <p className="font-medium text-gray-900 dark:text-white">
                         {schedule.route}
                       </p>
 
@@ -145,30 +170,91 @@ export default function ScheduleTable({
                           "Not available" &&
                         schedule.destination !==
                           "Not available" && (
-                          <p className="mt-1 text-sm text-gray-500">
-                            {schedule.source} →{" "}
-                            {schedule.destination}
-                          </p>
+                          <div className="mt-2 space-y-1 text-sm">
+                            <p className="text-blue-600 dark:text-blue-300">
+                              Morning:{" "}
+                              {schedule.source} →{" "}
+                              {schedule.destination}
+                            </p>
+
+                            <p className="text-purple-600 dark:text-purple-300">
+                              Evening:{" "}
+                              {schedule.destination} →{" "}
+                              {schedule.source}
+                            </p>
+                          </div>
                         )}
                     </td>
 
                     <td className="p-5">
-                      {schedule.departure ||
-                        "Not available"}
+                      <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-900 dark:bg-blue-950/30">
+                        <div className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
+                          <Sun size={18} />
+                          <span className="font-semibold">
+                            Morning
+                          </span>
+                        </div>
+
+                        <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">
+                          Departure
+                        </p>
+
+                        <p className="font-bold text-slate-900 dark:text-white">
+                          {formatDisplayTime(
+                            schedule.departure
+                          )}
+                        </p>
+
+                        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+                          Arrival
+                        </p>
+
+                        <p className="font-bold text-slate-900 dark:text-white">
+                          {formatDisplayTime(
+                            schedule.arrival
+                          )}
+                        </p>
+                      </div>
                     </td>
 
                     <td className="p-5">
-                      {schedule.arrival ||
-                        "Not available"}
+                      <div className="rounded-2xl border border-purple-200 bg-purple-50 p-4 dark:border-purple-900 dark:bg-purple-950/30">
+                        <div className="flex items-center gap-2 text-purple-700 dark:text-purple-300">
+                          <Moon size={18} />
+                          <span className="font-semibold">
+                            Evening
+                          </span>
+                        </div>
+
+                        <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">
+                          Departure
+                        </p>
+
+                        <p className="font-bold text-slate-900 dark:text-white">
+                          {formatDisplayTime(
+                            schedule.returnDeparture
+                          )}
+                        </p>
+
+                        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+                          Arrival
+                        </p>
+
+                        <p className="font-bold text-slate-900 dark:text-white">
+                          {formatDisplayTime(
+                            schedule.returnArrival
+                          )}
+                        </p>
+                      </div>
                     </td>
 
                     <td className="p-5">
                       <span
-                        className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                        className={`rounded-full px-3 py-1 text-sm font-semibold ${
                           schedule.status ===
                           "Active"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
+                            ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
+                            : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"
                         }`}
                       >
                         {schedule.status}
@@ -186,7 +272,7 @@ export default function ScheduleTable({
                           }
                           disabled={isDeleting}
                           title="View schedule"
-                          className="p-2 rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white transition disabled:cursor-not-allowed disabled:opacity-50"
+                          className="rounded-lg bg-blue-100 p-2 text-blue-600 transition hover:bg-blue-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 dark:bg-blue-900/30 dark:text-blue-300"
                         >
                           <Eye size={18} />
                         </button>
@@ -198,7 +284,7 @@ export default function ScheduleTable({
                           }
                           disabled={isDeleting}
                           title="Edit schedule"
-                          className="p-2 rounded-lg bg-green-100 text-green-600 hover:bg-green-600 hover:text-white transition disabled:cursor-not-allowed disabled:opacity-50"
+                          className="rounded-lg bg-green-100 p-2 text-green-600 transition hover:bg-green-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 dark:bg-green-900/30 dark:text-green-300"
                         >
                           <Pencil size={18} />
                         </button>
@@ -212,7 +298,7 @@ export default function ScheduleTable({
                           }
                           disabled={isDeleting}
                           title="Delete schedule"
-                          className="p-2 rounded-lg bg-red-100 text-red-600 hover:bg-red-600 hover:text-white transition disabled:cursor-not-allowed disabled:opacity-50"
+                          className="rounded-lg bg-red-100 p-2 text-red-600 transition hover:bg-red-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 dark:bg-red-900/30 dark:text-red-300"
                         >
                           {isDeleting ? (
                             <LoaderCircle

@@ -66,6 +66,16 @@ function normalizeSchedule(item) {
         ? item.arrival_time.toString().slice(0, 5)
         : "",
 
+    returnDeparture:
+      item.return_departure_time
+        ? item.return_departure_time.toString().slice(0, 5)
+        : "",
+
+    returnArrival:
+      item.return_arrival_time
+        ? item.return_arrival_time.toString().slice(0, 5)
+        : "",
+
     status: normalizeStatus(item.status),
   };
 }
@@ -319,7 +329,7 @@ export default function Schedules() {
           className="animate-spin text-blue-600"
         />
 
-        <p className="mt-4 text-lg font-semibold text-gray-600">
+        <p className="mt-4 text-lg font-semibold text-gray-600 dark:text-slate-300">
           Loading schedules...
         </p>
       </div>
@@ -379,7 +389,7 @@ export default function Schedules() {
 
       {/* Error */}
       {error && (
-        <div className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-red-700">
+        <div className="flex items-start gap-3 rounded-2xl border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/40 p-4 text-red-700 dark:text-red-300">
           <AlertCircle
             size={22}
             className="mt-0.5 shrink-0"
@@ -425,7 +435,7 @@ export default function Schedules() {
       </div>
 
       {/* Search and Filter */}
-      <div className="bg-white rounded-3xl shadow-xl p-6">
+      <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-xl p-6">
         <div className="grid md:grid-cols-2 gap-4">
           <input
             type="text"
@@ -434,7 +444,7 @@ export default function Schedules() {
             onChange={(event) =>
               setSearch(event.target.value)
             }
-            className="border rounded-xl p-4 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            className="border border-slate-300 dark:border-slate-600 rounded-xl p-4 outline-none bg-white dark:bg-slate-900 text-slate-800 dark:text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
           />
 
           <select
@@ -444,7 +454,7 @@ export default function Schedules() {
                 event.target.value
               )
             }
-            className="border rounded-xl p-4 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            className="border border-slate-300 dark:border-slate-600 rounded-xl p-4 outline-none bg-white dark:bg-slate-900 text-slate-800 dark:text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
           >
             <option value="All">
               All Status
@@ -488,8 +498,8 @@ export default function Schedules() {
       {/* View Schedule Modal */}
       {viewSchedule && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white w-full max-w-[550px] rounded-3xl shadow-2xl p-8">
-            <h2 className="text-3xl font-bold mb-6">
+          <div className="bg-white dark:bg-slate-800 w-full max-w-[620px] rounded-3xl shadow-2xl p-8">
+            <h2 className="text-3xl font-bold mb-6 text-slate-900 dark:text-white">
               Schedule Details
             </h2>
 
@@ -527,19 +537,37 @@ export default function Schedules() {
               />
 
               <DetailRow
-                label="Departure"
-                value={
-                  viewSchedule.departure
-                }
+                label="Morning Route"
+                value={`${viewSchedule.source} → ${viewSchedule.destination}`}
               />
 
               <DetailRow
-                label="Arrival"
+                label="Morning Departure"
+                value={viewSchedule.departure}
+              />
+
+              <DetailRow
+                label="Morning Arrival"
                 value={viewSchedule.arrival}
               />
 
+              <DetailRow
+                label="Evening Route"
+                value={`${viewSchedule.destination} → ${viewSchedule.source}`}
+              />
+
+              <DetailRow
+                label="Evening Departure"
+                value={viewSchedule.returnDeparture}
+              />
+
+              <DetailRow
+                label="Evening Arrival"
+                value={viewSchedule.returnArrival}
+              />
+
               <div className="flex justify-between items-center">
-                <span className="font-semibold">
+                <span className="font-semibold text-slate-800 dark:text-slate-200">
                   Status
                 </span>
 
@@ -576,12 +604,12 @@ export default function Schedules() {
 
 function DetailRow({ label, value }) {
   return (
-    <div className="flex justify-between gap-5 border-b pb-3">
-      <span className="font-semibold">
+    <div className="flex justify-between gap-5 border-b border-slate-200 dark:border-slate-700 pb-3">
+      <span className="font-semibold text-slate-800 dark:text-slate-200">
         {label}
       </span>
 
-      <span className="text-right break-words">
+      <span className="text-right break-words text-slate-600 dark:text-slate-300">
         {value || "Not available"}
       </span>
     </div>

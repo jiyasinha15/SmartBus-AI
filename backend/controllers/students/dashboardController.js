@@ -38,6 +38,8 @@ exports.getStudentDashboard = (req, res) => {
       sc.id AS schedule_id,
       sc.departure_time,
       sc.arrival_time,
+      sc.return_departure_time,
+      sc.return_arrival_time,
       sc.status AS schedule_status,
 
       d.id AS driver_id,
@@ -46,7 +48,7 @@ exports.getStudentDashboard = (req, res) => {
       du.phone AS driver_phone,
       d.license_number,
       d.experience_years,
-      d.total_trips,
+      d.total_trips AS driver_total_trips,
       d.total_distance,
       d.rating,
 

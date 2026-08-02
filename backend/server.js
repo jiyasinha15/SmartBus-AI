@@ -27,6 +27,7 @@ const reportRoutes = require("./routes/reports");
 const adminSettingsRoutes = require("./routes/adminSettings");
 const studentSettingsRoutes = require("./routes/studentSettings");
 const driverSettingsRoutes = require("./routes/driverSettings");
+const tripProgressRoutes = require("./routes/tripProgress");
 
 app.use(cors());
 app.use(express.json());
@@ -51,6 +52,7 @@ app.use("/api/admin/settings", adminSettingsRoutes);
 app.use("/api/student/settings",studentSettingsRoutes);
 
 app.use("/api/driver/settings", driverSettingsRoutes);
+app.use("/api/trip-progress", tripProgressRoutes);
 
 
 app.get("/", (req, res) => {

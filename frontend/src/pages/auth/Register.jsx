@@ -1,5 +1,5 @@
 import api from "../../services/api";
-import { useState } from "react";
+import {useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
   FaUser,
@@ -31,6 +31,9 @@ export default function Register() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  useEffect(() => {
+    document.documentElement.classList.remove("dark");
+  }, []);
 
   const handleRegister = async () => {
     if (!role) {

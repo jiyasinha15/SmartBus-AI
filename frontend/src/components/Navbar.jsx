@@ -73,6 +73,8 @@ export default function Navbar() {
 
   const currentUser = getStoredUser();
 
+  console.log("Current User:", currentUser);
+
   const userRole =
     currentUser.role || localStorage.getItem("userRole") || "admin";
 
@@ -91,10 +93,11 @@ export default function Navbar() {
 
   const title = pageTitle.charAt(0).toUpperCase() + pageTitle.slice(1);
 
-  const unreadCount = notifications.filter(
-    (notification) =>
-      !notification.is_read && notification.is_read !== 1
-  ).length;
+  const unreadNotifications = notifications.filter(
+    (notification) => Number(notification.is_read) !== 1
+  );
+
+  const unreadCount = unreadNotifications.length;
 
   const availablePages = SEARCH_PAGES[userRole] || [];
 
@@ -112,7 +115,9 @@ export default function Navbar() {
     try {
       setLoadingNotifications(true);
 
-      const response = await api.get("/notifications");
+      const response = await api.get(
+        `/notifications/user/${currentUser.id}`
+      );
 
       const data =
         response.data?.notifications ||
@@ -183,9 +188,44 @@ export default function Navbar() {
   };
 
   const handleNotificationToggle = () => {
-    setOpenNotification((previousValue) => !previousValue);
+    setOpenNotification((previousValue) => {
+      const willOpen = !previousValue;
+
+      if (willOpen) {
+        fetchNotifications();
+      }
+
+      return willOpen;
+    });
+
     setOpenProfile(false);
     setOpenSearch(false);
+  };
+
+  const handleNotificationClick = async (notification) => {
+    try {
+      if (Number(notification.is_read) !== 1) {
+        await api.put(`/notifications/${notification.id}/read`);
+
+        setNotifications((previousNotifications) =>
+          previousNotifications.map((item) =>
+            item.id === notification.id
+              ? { ...item, is_read: 1 }
+              : item
+          )
+        );
+      }
+
+      setOpenNotification(false);
+
+      navigate(`/${userRole}/notifications`, {
+        state: {
+          notificationId: notification.id,
+        },
+      });
+    } catch (error) {
+      console.error("Could not open notification:", error);
+    }
   };
 
   const handleProfileToggle = () => {
@@ -319,22 +359,26 @@ export default function Navbar() {
                   <div className="px-4 py-6 text-center text-slate-500 dark:text-slate-400">
                     Loading notifications...
                   </div>
-                ) : notifications.length === 0 ? (
+                ) : unreadNotifications.length === 0 ? (
                   <div className="px-4 py-6 text-center text-slate-500 dark:text-slate-400">
                     No notifications available.
                   </div>
                 ) : (
-                  notifications.slice(0, 5).map((notification) => (
+                  unreadNotifications.slice(0, 5).map((notification) => (
                     <div
                       key={
                         notification.id ||
                         `${notification.title}-${notification.created_at}`
                       }
-                      className={`px-4 py-3 border-b border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer ${
-                        !notification.is_read && notification.is_read !== 1
-                          ? "bg-blue-50 dark:bg-blue-900/20"
-                          : ""
-                      }`}
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => handleNotificationClick(notification)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          handleNotificationClick(notification);
+                        }
+                   }}
+                  className="px-4 py-3 border-b border-slate-200 dark:border-slate-700 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-slate-700 cursor-pointer transition"
                     >
                       <p className="font-semibold text-slate-800 dark:text-white">
                         {notification.title || "Notification"}

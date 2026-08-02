@@ -1,9 +1,14 @@
 import { motion } from "framer-motion";
 import { FaUserGraduate, FaBus, FaUserShield } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 export default function ChooseRole() {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    document.documentElement.classList.remove("dark");
+  }, []);
 
   const roles = [
     {

@@ -79,6 +79,27 @@ function formatText(value) {
     );
 }
 
+function formatBusStatus(status) {
+  if (!status) return "N/A";
+
+  switch (String(status).toLowerCase()) {
+    case "active":
+      return "🟢 On Route";
+
+    case "idle":
+      return "🅿️ Parked";
+
+    case "maintenance":
+      return "🛠 Under Maintenance";
+
+    case "inactive":
+      return "🔴 Not Available";
+
+    default:
+      return formatText(status);
+  }
+}
+
 export default function Profile() {
   const [profileData, setProfileData] =
     useState(null);
@@ -215,10 +236,14 @@ export default function Profile() {
     "N/A";
 
   const email =
-    profileData?.email || "N/A";
+    profileData?.student_email ||
+    profileData?.email ||
+    "N/A";
 
   const phone =
-    profileData?.phone || "N/A";
+    profileData?.student_phone ||
+    profileData?.phone ||
+    "N/A";
 
   const rollNumber =
     profileData?.roll_number ||
@@ -264,13 +289,13 @@ export default function Profile() {
     0;
 
   const totalTrips =
-    profileData?.total_trips ?? 0;
+    profileData?.driver_total_trips ?? 0;
 
-  const onTimeTrips =
-    profileData?.on_time_trips ?? 0;
+  const busStatus =
+    formatBusStatus(profileData?.bus_status);
 
-  const missedTrips =
-    profileData?.missed_trips ?? 0;
+  const driverRating =
+    profileData?.rating ?? "N/A";
 
   const hasAssignedBus = Boolean(
     profileData?.bus_id
@@ -411,11 +436,11 @@ export default function Profile() {
           <Bus size={35} />
 
           <p className="mt-4 text-white/90">
-            Total Trips
+            Assigned Bus
           </p>
 
           <h2 className="text-3xl font-bold mt-2">
-            {totalTrips}
+            {busNumber}
           </h2>
         </div>
 
@@ -423,11 +448,11 @@ export default function Profile() {
           <Clock size={35} />
 
           <p className="mt-4 text-white/90">
-            On-Time Trips
+            Bus Status
           </p>
 
           <h2 className="text-3xl font-bold mt-2">
-            {onTimeTrips}
+            {busStatus}
           </h2>
         </div>
 
@@ -435,11 +460,11 @@ export default function Profile() {
           <Users size={35} />
 
           <p className="mt-4 text-white/90">
-            Missed Trips
+            Unread Notifications
           </p>
 
           <h2 className="text-3xl font-bold mt-2">
-            {missedTrips}
+            {profileData?.unread_notifications ?? 0}
           </h2>
         </div>
       </div>
@@ -544,9 +569,7 @@ export default function Profile() {
                 </p>
 
                 <span className="font-medium text-slate-700">
-                  {formatText(
-                    profileData?.bus_status
-                  )}
+                  {busStatus}
                 </span>
               </div>
             </div>

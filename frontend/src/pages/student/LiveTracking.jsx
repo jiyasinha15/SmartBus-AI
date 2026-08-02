@@ -15,6 +15,9 @@ import {
   AlertCircle,
   Phone,
   ShieldCheck,
+  Flag,
+  CheckCircle,
+  ListOrdered,
 } from "lucide-react";
 import {
   useCallback,
@@ -67,7 +70,6 @@ function formatTime(time) {
       !Number.isNaN(minutes)
     ) {
       const date = new Date();
-
       date.setHours(hours, minutes, 0, 0);
 
       return date.toLocaleTimeString("en-IN", {
@@ -124,11 +126,55 @@ export default function LiveTracking() {
   const [trackingData, setTrackingData] =
     useState(null);
 
+  const [tripData, setTripData] = useState(null);
+
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] =
     useState(false);
 
   const [error, setError] = useState("");
+  const [tripError, setTripError] = useState("");
+
+  const fetchTripProgress = useCallback(
+    async (busId) => {
+      if (!busId) {
+        setTripData(null);
+        return;
+      }
+
+      try {
+        setTripError("");
+
+        const response = await api.get(
+          `/trip-progress/bus/${busId}`
+        );
+
+        if (
+          response.data?.success &&
+          response.data?.trip
+        ) {
+          setTripData(response.data.trip);
+        } else {
+          setTripData(null);
+        }
+      } catch (tripFetchError) {
+        console.error(
+          "Student trip progress error:",
+          tripFetchError
+        );
+
+        if (tripFetchError.response?.status === 404) {
+          setTripData(null);
+        } else {
+          setTripError(
+            tripFetchError.response?.data?.message ||
+              "Could not load trip progress."
+          );
+        }
+      }
+    },
+    []
+  );
 
   const fetchTrackingData = useCallback(
     async (showMainLoader = false) => {
@@ -171,27 +217,37 @@ export default function LiveTracking() {
           return;
         }
 
-        setTrackingData(response.data.dashboard);
-      } catch (error) {
+        const dashboardData = response.data.dashboard;
+
+        setTrackingData(dashboardData);
+
+        if (dashboardData?.bus_id) {
+          await fetchTripProgress(
+            dashboardData.bus_id
+          );
+        } else {
+          setTripData(null);
+        }
+      } catch (fetchError) {
         console.error(
           "Live tracking error:",
-          error
+          fetchError
         );
 
-        if (error.response?.status === 401) {
+        if (fetchError.response?.status === 401) {
           setError(
             "Your login session has expired. Please log in again."
           );
         } else if (
-          error.response?.status === 404
+          fetchError.response?.status === 404
         ) {
           setError(
-            error.response?.data?.message ||
+            fetchError.response?.data?.message ||
               "Student tracking information was not found."
           );
         } else {
           setError(
-            error.response?.data?.message ||
+            fetchError.response?.data?.message ||
               "Unable to load live tracking data."
           );
         }
@@ -200,7 +256,7 @@ export default function LiveTracking() {
         setRefreshing(false);
       }
     },
-    []
+    [fetchTripProgress]
   );
 
   useEffect(() => {
@@ -224,7 +280,7 @@ export default function LiveTracking() {
             className="mx-auto text-blue-600 animate-spin"
           />
 
-          <h2 className="mt-5 text-2xl font-bold text-slate-800 dark:text-white dark:text-white">
+          <h2 className="mt-5 text-2xl font-bold text-slate-800 dark:text-white">
             Loading Live Tracking
           </h2>
 
@@ -240,14 +296,14 @@ export default function LiveTracking() {
     return (
       <div className="min-h-[65vh] flex items-center justify-center">
         <div className="w-full max-w-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-3xl shadow-xl p-9 text-center transition-colors">
-          <div className="mx-auto w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
+          <div className="mx-auto w-16 h-16 rounded-full bg-red-100 dark:bg-red-950/40 flex items-center justify-center">
             <AlertCircle
               size={34}
-              className="text-red-600"
+              className="text-red-600 dark:text-red-400"
             />
           </div>
 
-          <h2 className="mt-5 text-2xl font-bold text-slate-800 dark:text-white dark:text-white">
+          <h2 className="mt-5 text-2xl font-bold text-slate-800 dark:text-white">
             Tracking Could Not Load
           </h2>
 
@@ -301,10 +357,23 @@ export default function LiveTracking() {
   const driverPhone =
     trackingData?.driver_phone || "";
 
+  const tripStatus =
+    tripData?.trip_status || "not_started";
+
+  const currentStop =
+    tripData?.current_stop || null;
+
+  const nextStop =
+    tripData?.next_stop || null;
+
+  const completedStops =
+    tripData?.completed_stops || [];
+
+  const remainingStops =
+    tripData?.remaining_stops || [];
+
   return (
     <div className="space-y-8">
-      {/* Header */}
-
       <div className="relative overflow-hidden bg-gradient-to-r from-blue-700 via-cyan-600 to-sky-500 rounded-3xl p-8 text-white shadow-xl">
         <div className="absolute -right-10 -top-10 w-56 h-56 bg-white/10 rounded-full blur-3xl"></div>
 
@@ -316,7 +385,7 @@ export default function LiveTracking() {
               </h1>
 
               <p className="mt-2 text-blue-100">
-                Track your assigned bus in real time.
+                Track your assigned bus and live route progress.
               </p>
             </div>
 
@@ -339,6 +408,18 @@ export default function LiveTracking() {
         </div>
       </div>
 
+      {error && (
+        <div className="rounded-2xl border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/40 px-5 py-4 text-red-700 dark:text-red-300">
+          {error}
+        </div>
+      )}
+
+      {tripError && (
+        <div className="rounded-2xl border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/40 px-5 py-4 text-red-700 dark:text-red-300">
+          {tripError}
+        </div>
+      )}
+
       {!hasAssignedBus && (
         <div className="bg-yellow-50 dark:bg-yellow-950/40 border border-yellow-200 dark:border-yellow-800 rounded-3xl p-6 flex items-start gap-4">
           <AlertCircle
@@ -352,9 +433,7 @@ export default function LiveTracking() {
             </h2>
 
             <p className="mt-1 text-yellow-700 dark:text-yellow-200">
-              Live tracking will become available
-              after the administrator assigns a bus
-              to your account.
+              Live tracking will become available after the administrator assigns a bus to your account.
             </p>
           </div>
         </div>
@@ -373,27 +452,19 @@ export default function LiveTracking() {
             </h2>
 
             <p className="mt-1 text-orange-700 dark:text-orange-200">
-              Your bus is assigned, but its current
-              GPS location has not been updated yet.
+              Your bus is assigned, but its current GPS location has not been updated yet.
             </p>
           </div>
         </div>
       )}
 
-      {/* Top Cards */}
-
       <div className="grid xl:grid-cols-4 md:grid-cols-2 gap-6">
         <div className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-3xl p-6 shadow-xl">
           <Bus size={35} />
-
-          <p className="mt-4 opacity-90">
-            Bus
-          </p>
-
+          <p className="mt-4 opacity-90">Bus</p>
           <h2 className="text-3xl font-bold">
             {trackingData?.bus_number || "N/A"}
           </h2>
-
           <p className="mt-2 text-sm opacity-90">
             {trackingData?.bus_name ||
               "No bus assigned"}
@@ -402,11 +473,9 @@ export default function LiveTracking() {
 
         <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-3xl p-6 shadow-xl">
           <Navigation size={35} />
-
           <p className="mt-4 opacity-90">
             Current Speed
           </p>
-
           <h2 className="text-3xl font-bold">
             {hasLiveLocation
               ? `${currentSpeed.toFixed(1)} km/h`
@@ -416,11 +485,9 @@ export default function LiveTracking() {
 
         <div className="bg-gradient-to-r from-orange-500 to-yellow-500 text-white rounded-3xl p-6 shadow-xl">
           <Clock size={35} />
-
           <p className="mt-4 opacity-90">
             Departure Time
           </p>
-
           <h2 className="text-3xl font-bold">
             {formatTime(
               trackingData?.departure_time
@@ -430,20 +497,165 @@ export default function LiveTracking() {
 
         <div className="bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-3xl p-6 shadow-xl">
           <MapPinned size={35} />
-
           <p className="mt-4 opacity-90">
-            Bus Status
+            Trip Status
           </p>
-
           <h2 className="text-3xl font-bold">
-            {formatStatus(
-              trackingData?.bus_status
-            )}
+            {formatStatus(tripStatus)}
           </h2>
         </div>
       </div>
 
-      {/* Map */}
+      <div className="grid lg:grid-cols-2 gap-6">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-3xl shadow-xl p-7">
+          <div className="flex items-center gap-3">
+            <MapPinned
+              className="text-green-600"
+              size={29}
+            />
+            <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
+              Current Stop
+            </h2>
+          </div>
+
+          <div className="mt-5 rounded-2xl bg-green-50 p-6 dark:bg-green-950/30">
+            <p className="text-sm font-semibold uppercase tracking-wide text-green-700 dark:text-green-300">
+              Bus is currently at
+            </p>
+
+            <h3 className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">
+              {currentStop?.stop_name ||
+                "Trip not started"}
+            </h3>
+
+            <p className="mt-3 text-slate-600 dark:text-slate-300">
+              {currentStop?.estimated_time
+                ? `Scheduled time: ${formatTime(
+                    currentStop.estimated_time
+                  )}`
+                : "Stop time not available"}
+            </p>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-3xl shadow-xl p-7">
+          <div className="flex items-center gap-3">
+            <Flag
+              className="text-blue-600"
+              size={29}
+            />
+            <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
+              Next Stop
+            </h2>
+          </div>
+
+          <div className="mt-5 rounded-2xl bg-blue-50 p-6 dark:bg-blue-950/30">
+            <p className="text-sm font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">
+              Upcoming stop
+            </p>
+
+            <h3 className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">
+              {nextStop?.stop_name ||
+                (tripStatus === "completed"
+                  ? "Trip completed"
+                  : "Not available")}
+            </h3>
+
+            <p className="mt-3 text-slate-600 dark:text-slate-300">
+              {nextStop?.estimated_time
+                ? `Scheduled time: ${formatTime(
+                    nextStop.estimated_time
+                  )}`
+                : "Stop time not available"}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid lg:grid-cols-2 gap-6">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-3xl shadow-xl p-7">
+          <div className="flex items-center gap-3">
+            <CheckCircle
+              className="text-green-600"
+              size={28}
+            />
+            <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
+              Completed Stops
+            </h2>
+          </div>
+
+          <div className="mt-5 space-y-3">
+            {completedStops.length === 0 ? (
+              <p className="rounded-2xl bg-slate-50 p-5 text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                No stops completed yet.
+              </p>
+            ) : (
+              completedStops.map((stop) => (
+                <div
+                  key={stop.id}
+                  className="flex items-center justify-between rounded-2xl bg-green-50 px-5 py-4 dark:bg-green-950/30"
+                >
+                  <span className="font-semibold text-slate-800 dark:text-white">
+                    {stop.stop_name}
+                  </span>
+
+                  <CheckCircle
+                    className="text-green-600"
+                    size={20}
+                  />
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-3xl shadow-xl p-7">
+          <div className="flex items-center gap-3">
+            <ListOrdered
+              className="text-purple-600"
+              size={28}
+            />
+            <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
+              Remaining Stops
+            </h2>
+          </div>
+
+          <div className="mt-5 space-y-3 max-h-[430px] overflow-y-auto pr-1">
+            {remainingStops.length === 0 ? (
+              <p className="rounded-2xl bg-slate-50 p-5 text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                {tripStatus === "completed"
+                  ? "No stops remaining."
+                  : "Trip has not started or no route stops are available."}
+              </p>
+            ) : (
+              remainingStops.map((stop, index) => (
+                <div
+                  key={stop.id}
+                  className="flex items-center gap-4 rounded-2xl bg-purple-50 px-5 py-4 dark:bg-purple-950/30"
+                >
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-purple-600 font-bold text-white">
+                    {index + 1}
+                  </div>
+
+                  <div>
+                    <p className="font-semibold text-slate-800 dark:text-white">
+                      {stop.stop_name}
+                    </p>
+
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                      {stop.estimated_time
+                        ? formatTime(
+                            stop.estimated_time
+                          )
+                        : "Time not set"}
+                    </p>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
 
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-3xl shadow-xl p-5 transition-colors">
         <div className="flex flex-wrap items-center justify-between gap-4 mb-5">
@@ -454,7 +666,7 @@ export default function LiveTracking() {
 
             <p className="mt-1 text-sm font-medium text-slate-500 dark:text-slate-400">
               {hasLiveLocation
-                ? "The map refreshes automatically every 5 seconds."
+                ? "The map and trip progress refresh automatically every 5 seconds."
                 : "Waiting for the latest GPS location."}
             </p>
           </div>
@@ -513,10 +725,14 @@ export default function LiveTracking() {
 
                     <br />
 
-                    Status:{" "}
-                    {formatStatus(
-                      trackingData?.bus_status
-                    )}
+                    Trip Status:{" "}
+                    {formatStatus(tripStatus)}
+
+                    <br />
+
+                    Current Stop:{" "}
+                    {currentStop?.stop_name ||
+                      "Not available"}
                   </div>
                 </Popup>
               </Marker>
@@ -548,11 +764,7 @@ export default function LiveTracking() {
         </div>
       </div>
 
-      {/* Driver and Journey */}
-
       <div className="grid lg:grid-cols-2 gap-6">
-        {/* Driver */}
-
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-3xl shadow-xl p-8 transition-colors">
           <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
             Driver Details
@@ -627,8 +839,6 @@ export default function LiveTracking() {
               : "Contact Unavailable"}
           </button>
         </div>
-
-        {/* Journey */}
 
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-3xl shadow-xl p-8 transition-colors">
           <h2 className="text-2xl font-bold text-slate-800 dark:text-white">

@@ -17,6 +17,10 @@ export default function Login() {
   const { role } = useParams();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    document.documentElement.classList.remove("dark");
+  }, []);
+
   const [showPassword, setShowPassword] =
     useState(false);
   const [rememberMe, setRememberMe] =

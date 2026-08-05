@@ -156,7 +156,7 @@ export default function LiveTracking() {
         ? response.data.locations
         : [];
 
-      const validLocations = locations
+      const normalizedLocations = locations
         .map(normalizeLocation)
         .filter(
           (bus) =>
@@ -167,6 +167,36 @@ export default function LiveTracking() {
             bus.longitude >= -180 &&
             bus.longitude <= 180
         );
+
+      // Keep only one latest entry per bus.
+      // This prevents duplicate cards/markers when the API returns
+      // multiple rows for the same bus because of SQL joins.
+      const uniqueBusMap = new Map();
+
+      normalizedLocations.forEach((bus) => {
+        const existingBus = uniqueBusMap.get(bus.busId);
+
+        if (!existingBus) {
+          uniqueBusMap.set(bus.busId, bus);
+          return;
+        }
+
+        const existingTime = existingBus.updatedAt
+          ? new Date(existingBus.updatedAt).getTime()
+          : 0;
+
+        const currentTime = bus.updatedAt
+          ? new Date(bus.updatedAt).getTime()
+          : 0;
+
+        if (currentTime >= existingTime) {
+          uniqueBusMap.set(bus.busId, bus);
+        }
+      });
+
+      const validLocations = Array.from(
+        uniqueBusMap.values()
+      );
 
       setBuses(validLocations);
       setError("");
@@ -391,7 +421,7 @@ export default function LiveTracking() {
       </div>
 
       {/* Search */}
-      <div className="bg-white rounded-3xl shadow-xl p-5">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl p-5">
         <div className="relative">
           <Search
             className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
@@ -410,14 +440,14 @@ export default function LiveTracking() {
 
       <div className="grid gap-6 xl:grid-cols-3">
         {/* Bus List */}
-        <div className="bg-white rounded-3xl shadow-xl p-6">
+        <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl p-6">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
                 Tracked Buses
               </h2>
 
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">
                 {filteredBuses.length} bus
                 {filteredBuses.length === 1 ? "" : "es"} found
               </p>
@@ -435,7 +465,7 @@ export default function LiveTracking() {
               filteredBuses.map((bus) => (
                 <button
                   type="button"
-                  key={bus.busId}
+                  key={`bus-card-${bus.busId}`}
                   onClick={() => setSelectedBusId(bus.busId)}
                   className={`w-full rounded-2xl border p-4 text-left transition ${
                     selectedBusId === bus.busId
@@ -449,7 +479,7 @@ export default function LiveTracking() {
                         {bus.busNumber}
                       </h3>
 
-                      <p className="mt-1 text-sm text-gray-500">
+                      <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">
                         {bus.busName}
                       </p>
                     </div>
@@ -489,15 +519,15 @@ export default function LiveTracking() {
         </div>
 
         {/* Live Map */}
-        <div className="overflow-hidden bg-white rounded-3xl shadow-xl">
+        <div className="overflow-hidden bg-white dark:bg-slate-900 rounded-3xl shadow-xl">
           <div className="border-b border-gray-200 p-6">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
                   Live Map
                 </h2>
 
-                <p className="mt-1 text-sm text-gray-500">
+                <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">
                   Refreshes automatically every 5 seconds
                 </p>
               </div>
@@ -528,7 +558,7 @@ export default function LiveTracking() {
 
             {filteredBuses.map((bus) => (
               <Marker
-                key={bus.busId}
+                key={`bus-marker-${bus.busId}`}
                 position={bus.position}
                 eventHandlers={{
                   click: () => setSelectedBusId(bus.busId),
@@ -566,8 +596,8 @@ export default function LiveTracking() {
         </div>
 
         {/* Selected Bus Details */}
-        <div className="bg-white rounded-3xl shadow-xl p-6">
-          <h2 className="text-2xl font-bold text-gray-900">
+        <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl p-6">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
             Selected Bus Details
           </h2>
 
@@ -640,7 +670,7 @@ export default function LiveTracking() {
               />
 
               <div>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 dark:text-slate-400">
                   Status
                 </p>
 
@@ -675,7 +705,7 @@ function DetailItem({
 }) {
   return (
     <div>
-      <p className="text-sm text-gray-500">{label}</p>
+      <p className="text-sm text-gray-500 dark:text-slate-400">{label}</p>
 
       <p
         className={`mt-1 break-words text-lg font-bold ${valueClassName}`}

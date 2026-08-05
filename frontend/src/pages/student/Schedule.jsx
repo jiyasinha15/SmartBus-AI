@@ -253,13 +253,13 @@ export default function Schedule() {
   const morningRouteText =
     scheduleData?.source &&
     scheduleData?.destination
-      ? `${scheduleData.source} → ${scheduleData.destination}`
+      ? `${scheduleData.destination} → ${scheduleData.source}`
       : "Route information unavailable";
 
   const eveningRouteText =
     scheduleData?.source &&
     scheduleData?.destination
-      ? `${scheduleData.destination} → ${scheduleData.source}`
+      ? `${scheduleData.source} → ${scheduleData.destination}`
       : "Return route information unavailable";
 
   return (
